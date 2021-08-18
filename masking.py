@@ -14,7 +14,7 @@ def binary_masking(image_path, json_path, save_path, image_only):
 
     if image_only:
         image_list = os.listdir(image_path)
-        for filename in tqdm(image_list):
+        for filename in tqdm(image_list, desc="Binary Masking ..."):
             sigma = 2.0
             t = 0.8
             image = skimage.io.imread(fname=f'{image_path}/{filename}')
