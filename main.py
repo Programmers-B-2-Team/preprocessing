@@ -15,7 +15,7 @@ app = typer.Typer()
 
 
 @app.command()
-def binary_json(
+def binary_mask(
     image_path: Path = typer.Argument(..., help="Garment Image file directory"),
     json_path: Path = typer.Option(None, help="Garment JSON files directory"),
     save_path: Path = typer.Option(Path('./masked'), help="Directory where result images saved in"),
