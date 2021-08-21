@@ -25,7 +25,7 @@
     python main.py binary-mask <Image directory Path> --save-path <Results directory> --image-only
     ```
 
-    - Image directory Path : 옷 이미지 파일이 저장된 디렉토리 경로 argument
+    - Image directory Path : 옷 이미지 파일이 저장된 디렉토리 경로 argument (required)
 
     - –json-path 옵션: 옷의 JSON 파일이 저장된 디렉토리 경로
 
@@ -39,6 +39,36 @@
 
     - ```bash
         python main.py binary-mask ./Item-Image --json-path ./Item-Parse_f
+        ```
+
+        
+
+2. Segmentation Labeling
+
+    - 모델 이미지에 대한 Segmentation Labeling을 진행한다.
+
+    - 현재 사용 중인 label 종류는 21가지로, 이는 CP VTON+ 논문을 참고하였다. PF-AFN 논문에서는 12개의 label을 부여하였다. Training code 또한 이에 맞춰져 있으므로, AI Hub data를 사용해 학습을 진행할 경우 Training code의 일부를 수정해줘야 한다.
+
+          
+
+    - JSON file을 사용한 Binary masking(AI Hub Data)
+
+    ```bash
+    python main.py segmentation-label <Image directory Path> <JSON directory Path> --save-path <Results directory>
+    ```
+
+    - Image directory Path : 옷 이미지 파일이 저장된 디렉토리 경로 argument (required)
+
+    - JSON directory Path: 옷의 JSON 파일이 저장된 디렉토리 경로 argument (required)
+
+    - –save-path 옵션: Binary masked 된 이미지를 저장할 디렉토리 경로. default값은 `./segmentation`
+
+    - 각 디렉토리 경로는 상대경로로 입력할 수 있다. 기준이 되는 것은 main.py의 위치.
+
+    - 실행 예
+
+    - ```bash
+        python main.py segmentation-label ./Model-Image ./Model-Parse_f
         ```
 
         
