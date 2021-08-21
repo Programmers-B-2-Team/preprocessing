@@ -4,6 +4,7 @@ import pickle
 import numpy as np
 import cv2
 import os
+from tqdm import tqdm
 
 
 def make_densepose(pkl_path, image_path, save_path):
@@ -11,7 +12,7 @@ def make_densepose(pkl_path, image_path, save_path):
         data = pickle.load(f)
     os.makedirs(save_path, exist_ok=True)
 
-    for i, item in enumerate(os.listdir(f'{image_path}')):
+    for i, item in enumerate(tqdm(os.listdir(f'{image_path}'))):
         res = data[i]["pred_densepose"][0].labels.to("cpu")
 
         # detectron2의 densepose 기능을 실행한 결과는 object detection을 포함하고 있다.
