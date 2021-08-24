@@ -7,7 +7,7 @@ from skimage import img_as_ubyte
 import skimage.io, skimage.color, skimage.filters
 
 
-# 옷 image dir, json dir과 결과를 저장할 dir 경로, image-only 여부를 arguments로 제공
+# image dir, json dir과 결과를 저장할 dir 경로, image-only 여부를 arguments로 제공
 def binary_masking(image_path, json_path, save_path, image_only):
     # binary masked image file이 저장될 directory 생성
     os.makedirs(save_path, exist_ok=True)

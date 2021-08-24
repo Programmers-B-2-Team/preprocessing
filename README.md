@@ -1,13 +1,18 @@
+
+
 # Team B-2 final project
+
 ## Virtual Try On : PF-AFN
 - 필요 패키지 설치
 - `pip install -r requirements.txt`
 
 
 
+
+
 #### 1. Binary Masking
 
-- 의류 이미지에 대한 Binary Masking을 진행한다. Image file만을 사용하여 만드는 경우, 현재 코드로는 옷의 White color에 대해 적절하게 작동하지 않아 추가적인 작업이 필요한 상태다. 이후 다른 알고리즘을 적용한 방식을 시도하여 업데이트 할 예정.
+- 의류/모델 이미지에 대한 Binary Masking을 진행한다. Image file만을 사용하여 만드는 경우, 현재 코드로는 의류 이미지의 White color에 대해 적절하게 작동하지 않아 추가적인 작업이 필요한 상태다. 이후 다른 알고리즘을 적용한 방식을 시도하여 업데이트 할 예정.
 
 - 모델의 트레이닝 단계에서는 AI Hub 데이터만 사용하므로 학습은 문제없이 진행이 가능할 것으로 생각된다. 그러나 서비스 단계에서 사용자의 이미지 파일에 대한 전처리 파이프라인을 구현할 것을 고려하여 Image only 케이스의 경우 또한 작업이 필수적일 것으로 보인다.
 
@@ -16,32 +21,37 @@
 - JSON file을 사용한 Binary masking(AI Hub Data)
 
 ```bash
-python main.py binary-mask <Image directory path> --json-path <JSON directory path> --save-path <Results directory>
+python main.py binary-mask <Image directory path> <Results directory> --json-path <JSON directory path>
 ```
 
 - Image only Binary masking(New Data)
 
 ```bash
-python main.py binary-mask <Image directory path> --save-path <Results directory> --image-only
+python main.py binary-mask <Image directory path> <Results directory> --image-only
 ```
 
-- Image directory path : 옷 이미지 파일이 저장된 디렉토리 경로 argument (required)
+- Image directory path : 옷/모델 이미지 파일이 저장된 디렉토리 경로 argument (required)
 
-- –json-path 옵션: 옷의 JSON 파일이 저장된 디렉토리 경로
+- Results directory: Binary masked 된 이미지를 저장할 디렉토리 경로 argument (required)
 
-- –save-path 옵션: Binary masked 된 이미지를 저장할 디렉토리 경로. default값은 `./item_mask`
+- –json-path 옵션: 옷/모델의 JSON 파일이 저장된 디렉토리 경로
 
 - –image-only 옵션: JSON file없이 이미지만으로 Binary masking image를 생성할 경우 추가
 
 - 각 디렉토리 경로는 상대경로로 입력할 수 있다. 기준이 되는 것은 main.py의 위치.
 
+    
+
 - 실행 예
 
 - ```bash
-    python main.py binary-mask ./Item-Image --json-path ./Item-Parse_f
+    python main.py binary-mask ./Item-Image ./model_masked --json-path ./Item-Parse_f
     ```
 
-    
+
+
+
+
 
 #### 2. Segmentation Labeling
 
@@ -62,6 +72,8 @@ python main.py segmentation-label <Image directory path> <JSON directory path> -
 
 - 각 디렉토리 경로는 상대경로로 입력할 수 있다. 기준이 되는 것은 main.py의 위치.
 
+    
+
 - 실행 예
 
 - ```bash
@@ -70,15 +82,71 @@ python main.py segmentation-label <Image directory path> <JSON directory path> -
 
     
 
-#### 3. Pose Map
 
-- 모델의 포즈에 대한 좌표 데이터로, AI hub에서 제공하는 Model Pose Parsing 데이터를 사용한다. 논문의 학습 코드에서 좌표값을 담고 있는 매핑 값만 조절해주면 무리없이 작동할 것으로 보인다.
+
+#### 3. Resizing & Pose Map
+
+- 해당 파트에서는 PF-AFN 논문에서 사용한 이미지의 비율에 맞게 리사이즈하는 작업을 진행한다.
+    - 옵션을 통해서 의류 Item image / Item Mask images에만 Resizing 할 지, 
+    - 혹은 Model image / Model mask / Segmentation / Pose Resizing 및 JSON data 생성을 진행할 지 결정한다.
+
+- AI hub에서 Pose JSON data를 제공하기 때문에, PF-AFN 논문의 학습코드의 일부 매핑을 변경해주고 좌표값에 필요없는 일부 데이터를 삭제해주는 것으로 간단히 처리할 수 있다. 그러나 Resizing이 이미지 데이터에 추가되는 경우, 이에 대한 Pose map의 좌표값을 변경될 이미지 사이즈에 맞게 상대적 이동이 필요해진다.
+    -  AI Hub에서 제공하는 Pose data의 경우, Pose의 point 수가 17개로 설정되어 있으나, 논문에서 사용하는 Pose point의 수는 17개 이상이 존재하기 때문에, 완벽하게 대응할 수 있을지 확인해 볼 필요가 있다.
+
+
+```bash
+python main.py resize-and-pose <Model image directory path> <Model mask directory path> --image-save <Results directory> --mask-save <Results directory>
+--seg-path <Segmentation directory path> --pose-path <Pose JSON directory path> --seg-save <Results directory> --pose-save <Results directory> --is-item
+```
+
+- Model image directory path : 모델 이미지 파일이 저장된 디렉토리 경로 argument (required)
+
+- Model mask directory path: 모델 이미지 binary mask 파일이 저장된 디렉토리 경로 argument (required)
+
+- –image-path 옵션: segmentation 된 이미지를 저장할 디렉토리 경로. default값은 `./resize_image`
+
+- –mask-path 옵션: segmentation 된 이미지를 저장할 디렉토리 경로. default값은 `./resize_mask`
 
     
+
+- –seg-path : 모델 Segmentation 이미지 파일이 저장된 디렉토리 경로
+
+- –pose-path: 모델 Pose JSON 파일이 저장된 디렉토리 경로
+
+- –seg-save 옵션: segmentation 된 이미지를 저장할 디렉토리 경로. default값은 `./resize_segmentation`
+
+- –pose-save 옵션: 새롭게 조정된 Pose JSON 데이터를 저장할 디렉토리 경로. default값은 `./resize_pose`
+
+- –is-item 옵션: Item image만을 resize할 경우에는 –is-item을 추가하고, 그 외의 경우는 해당 옵션을 추가하지 않는다. 
+
+- 각 디렉토리 경로는 상대경로로 입력할 수 있다. 기준이 되는 것은 main.py의 위치.
+
+    
+
+- 실행 예
+
+    - Item only
+
+    ```bash
+    python main.py resize-and-pose ./Item-Image ./Item-Mask --is-item
+    ```
+
+    - Model, Seg, Pose
+
+    ```bash
+    python main.py resize-and-pose ./Model-Image ./Model-Mask --seg-path ./Segmentation --pose-path ./Model-Pose
+    ```
+
+
+
+
+
 
 #### 4. DensePose Map
 
 - PF-AFN 논문에서 dense correspondense를 보다 정확히 얻기 위해서 사용한다. 페이스북의 detectron framework를 사용하여 densepose map을 얻을 수 있다.(해당 논문에서는 facebook research팀이 개발한 영상 전처리 프레임워크인 detectron으로 영상처리 기능이 통합되기 전의 코드를 사용한 것으로 보인다.)
+
+- 만약 이미지 데이터에 Resizing이 들어갈 경우, Resized 된 모델 이미지 셋을 사용해야 한다.
 
     
 
@@ -129,6 +197,8 @@ python main.py densepose-map <Detectron directory path> <Image directory path> -
 - –save-path 옵션: densepose numpy file을 저장할 디렉토리 경로. default값은 `./model_densepose`
 
 - 각 디렉토리 경로는 상대경로로 입력할 수 있다. 기준이 되는 것은 main.py의 위치.
+
+    
 
 - 실행 예
 
