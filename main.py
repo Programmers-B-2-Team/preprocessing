@@ -40,7 +40,7 @@ def resize_and_pose(
     image_path: Path = typer.Argument(..., help="Model Image file directory"),
     mask_path: Path = typer.Argument(..., help="Model Mask files directory"),
     model_image_save: Path = typer.Option(Path('./resize_image'), help="Directory where resized images saved in"),
-    model_mask_save: Path = typer.Option(Path('./resize _mask'), help="Directory where resized images saved in"),
+    model_mask_save: Path = typer.Option(Path('./resize_mask'), help="Directory where resized images saved in"),
 
     seg_path: Path = typer.Option(None, help="Segmenation files directory"),
     pose_path: Path = typer.Option(None, help="Pose JSON file directory"),
@@ -70,18 +70,20 @@ def densepose_map(
     image_path: Path = typer.Argument(..., help="Model Image file directory"),
     save_path: Path = typer.Option(Path('./model_densepose'), help="Directory where result images saved in"),
 ):
-    current_path = os.getcwd()
+    project_path = os.getcwd()
     image_abspath = os.path.abspath(image_path)
 
     os.chdir(f'{detectron_dir}')
+    # 사전에 프로젝트 폴더(./detectron2/projects/DensePose/) 내에
+    # model_final_844d15.pkl 체크포인트 파일이 저장되어 있어야 한다
     os.system(
         f'''python apply_net.py dump ./configs/densepose_rcnn_R_101_FPN_DL_s1x.yaml
         model_final_844d15.pkl {image_abspath}/"*.jpg" --output results.pkl -v'''
     )
     pkl_path = os.getcwd()
 
-    os.chdir(current_path)
-    make_densepose(pkl_path, image_path, save_path)
+    os.chdir(project_path)
+    make_densepose(pkl_path, save_path)
 
 
 if __name__ == "__main__":

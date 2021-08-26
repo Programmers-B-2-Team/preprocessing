@@ -54,6 +54,10 @@ def segmentation(image_path, json_path, save_path):
         "dress_rsleeve": 5,
         "dress_lsleeve": 5,
 
+        "outer_torso": 5,  # 데이터 일관성 위해 임시 추가
+        "outer_lsleeve": 5,  # 데이터 일관성 위해 임시 추가
+        "outer_rsleeve": 5,  # 데이터 일관성 위해 임시 추가
+
         "pants_hip": 9,
         "pants_rsleeve": 9,
         "pants_lsleeve": 9,
@@ -88,13 +92,16 @@ def segmentation(image_path, json_path, save_path):
                 category = data['category_name']
                 # outer는 제외하고 학습시킨다
                 # 만약 사전에 데이터셋에서 outer를 제외했다면 for-else 문을 삭제한다
-                if "outer" in category:
-                    break
+                # if "outer" in category:
+                    # break
 
                 color = cmap[color_dict[category]]
                 pts = data['segmentation']
                 for i in range(len(pts)):
                     area = np.array(pts[i], dtype=np.int32)
                     base_image = cv2.fillPoly(base_image, [area], color)
-        else:
+
             cv2.imwrite(f'{save_path}/{image_file}', base_image)
+
+        # else:
+        #     cv2.imwrite(f'{save_path}/{image_file}', base_image)
