@@ -84,7 +84,7 @@ python main.py segmentation-label <Image directory path> <JSON directory path> -
 
 
 
-#### 3. Resizing & Pose Map
+#### 3. Resizing
 
 - 해당 파트에서는 PF-AFN 논문에서 사용한 이미지의 비율에 맞게 리사이즈하는 작업을 진행한다.
     - 옵션을 통해서 의류 Item image / Item Mask images에만 Resizing 할 지, 
@@ -95,7 +95,7 @@ python main.py segmentation-label <Image directory path> <JSON directory path> -
 
 
 ```bash
-python main.py resize-and-pose <Model image directory path> <Model mask directory path> --image-save <Results directory> --mask-save <Results directory>
+python main.py resizing <Model image directory path> <Model mask directory path> --image-save <Results directory> --mask-save <Results directory>
 --seg-path <Segmentation directory path> --pose-path <Pose JSON directory path> --seg-save <Results directory> --pose-save <Results directory> --is-item
 ```
 

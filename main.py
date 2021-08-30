@@ -36,7 +36,7 @@ def segmentation_label(
 
 
 @app.command()
-def resize_and_pose(
+def resizing(
     image_path: Path = typer.Argument(..., help="Model Image file directory"),
     mask_path: Path = typer.Argument(..., help="Model Mask files directory"),
     model_image_save: Path = typer.Option(Path('./resize_image'), help="Directory where resized images saved in"),

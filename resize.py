@@ -39,6 +39,17 @@ def trim(mask_im):
         return None
 
 
+# PIL Image 파일을 target_size로 resize 해주는 함수
+def img_resize(im, target_size):
+    return im.resize(target_size)
+
+
+# image들을 주어진 bbox에 맞게 crop하고 목표 크기로 resizing
+def crop_and_resize(image_list, bbox, target_size):
+    crop_images = [image.crop(bbox) for image in image_list]
+    return (img_resize(image, target_size) for image in crop_images)
+
+
 # 리스트에 있는 이미지를 color(모델 이미지)와 마스크를 불러오고 크롭 이미지로 만들어 새 폴더에 저장하는 함수
 def resize(
     image_path, mask_path,
@@ -49,9 +60,12 @@ def resize(
     # True for Item image process only
     is_item=False
 ):
-    # resized images, new pose map을 저장할 디렉토리를 생성
+    # resized image가 저장될 directory
     os.makedirs(image_save, exist_ok=True)
     os.makedirs(mask_save, exist_ok=True)
+
+    # target_size 설정
+    target_size = (192, 256)
 
     # Only resizing Item(Garment) Images and Mask
     if is_item:
@@ -67,9 +81,8 @@ def resize(
             # get bbox
             bbox = trim(mask_im)
 
-            # crop
-            resize_im = im.crop(bbox)
-            resize_mask_im = mask_im.crop(bbox)
+            # crop and resize
+            resize_im, resize_mask_im = crop_and_resize([im, mask_im], bbox, target_size)
 
             # save resized images
             resize_im.save(f'{image_save}/{model_image}')
@@ -78,6 +91,7 @@ def resize(
     # Model Image/Model Mask/Model segmentation resizing
     # Make new Pose map
     else:
+        # resized seg_image, new pose map 저장할 디렉토리를 생성
         os.makedirs(seg_save, exist_ok=True)
         os.makedirs(pose_save, exist_ok=True)
 
@@ -97,12 +111,12 @@ def resize(
             bbox = trim(mask_im)
 
             # crop
-            resize_im = im.crop(bbox)
-            resize_mask_im = mask_im.crop(bbox)
-            resize_seg_im = seg_im.crop(bbox)
+            resize_im, resize_mask_im, resize_seg_im = \
+                crop_and_resize([im, mask_im, seg_im], bbox, target_size)
 
+            resize_ratio = resize_im.size[0] / im.size[0]
             # make new Pose map for resized images
-            new_posemap(pose_path, pose_json, pose_save, bbox)
+            new_posemap(pose_path, pose_json, pose_save, bbox, resize_ratio)
 
             # save resized images
             resize_im.save(f'{image_save}/{model_image}')
