@@ -2,10 +2,10 @@ import os
 import typer
 from pathlib import Path
 from densepose import make_densepose
+from mask_unet import unet_masking
 from masking import binary_masking
 from resize import resize
-from segmentation import segmentation
-
+from segmentation import *
 
 app = typer.Typer()
 
@@ -24,15 +24,26 @@ def binary_mask(
 
 
 @app.command()
+def unet_mask(
+    image_path: Path = typer.Argument(..., help="Garment/Model Image file directory"),
+    save_path: Path = typer.Argument(..., help="Directory where result images saved in"),
+):
+    """
+    Create Binary masked image with U Net (image-only method)
+    """
+    unet_masking(image_path, save_path)
+
+
+@app.command()
 def segmentation_label(
-    image_path: Path = typer.Argument(..., help="Model Image file directory"),
     json_path: Path = typer.Argument(..., help="Model JSON files directory"),
     save_path: Path = typer.Option(Path('./model_segmentation'), help="Directory where result images saved in"),
 ):
     """
         Create Binary masked image(with JSON file)
         """
-    segmentation(image_path, json_path, save_path)
+    # segmentation(json_path, save_path)
+    indexed_segmentation(json_path, save_path)
 
 
 @app.command()
