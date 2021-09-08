@@ -12,7 +12,7 @@
 
 - 의류/모델 이미지에 대한 Binary Masking을 진행한다. Image file만을 사용하여 만드는 경우, Grabcut을 이용한 코드로 binary masking을 실행한다. 단 이 경우, 흰 배경 + 밝은 옷의 조합에서 부정확한 masking 결과가 나타나기 때문에, 데이터셋이 어느정도 조건에 부합하게 필터링되어있지 않다면 U Net을 사용한 method를 실행시키는 것이 더 정확한 결과를 기대할 수 있다.
 
-      
+  ​    
 
 - JSON file을 사용한 Binary masking(AI Hub Data)
 
@@ -41,7 +41,7 @@ python main.py binary-mask <Image directory path> <Results directory> --image-on
 - 실행 예
 
 - ```bash
-    python main.py unet-mask ./Item-Image ./model_masked --json-path ./Item-Parse_f
+    python main.py binary-mask ./Item-Image ./model_masked --json-path ./Item-Parse_f
     ```
 
 
@@ -68,7 +68,7 @@ python main.py unet-mask <Image directory path> <Results directory>
 - 실행 예
 
 - ```bash
-    python main.py binary-mask ./Item-Image ./model_masked
+    python main.py unet-mask ./Item-Image ./model_masked
     ```
 
 

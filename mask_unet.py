@@ -1,11 +1,17 @@
+import albumentations as albu
 from collections import namedtuple
 from torch import nn
-from torch.utils import model_zoo
 from segmentation_models_pytorch import Unet
-import albumentations as albu
+from torch.utils import model_zoo
+from tqdm import tqdm
+from PIL import Image
+import torch
+import os
 from utils import *
 
+
 model = namedtuple("model", ["url", "model"])
+
 models = {
     "Unet_2020-10-30": model(
         url="https://github.com/ternaus/cloths_segmentation/releases/download/0.0.1/weights.zip",
@@ -28,13 +34,15 @@ def unet_masking(image_path, save_path):
     os.makedirs(save_path, exist_ok=True)
 
     model = create_model("Unet_2020-10-30")
-    transform = albu.Compose([albu.Normalize(p=1)], p=1)
+    model.eval()
 
+    transform = albu.Compose([albu.Normalize(p=1)], p=1)
     image_list = os.listdir(image_path)
 
-    for image in image_list:
+    for image in tqdm(image_list):
         im = load_rgb(f'{image_path}/{image}')
         padded_image, pads = pad(im, factor=32, border=cv2.BORDER_CONSTANT)
+
         x = transform(image=padded_image)["image"]
         x = torch.unsqueeze(tensor_from_rgb_image(x), 0)
 
@@ -43,6 +51,6 @@ def unet_masking(image_path, save_path):
 
         mask = (prediction > 0).cpu().numpy().astype(np.uint8)
         mask = unpad(mask, pads)
-        masked_image = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB) * 255
-
-        cv2.imwrite(f'{save_path}/{image}', masked_image)
+        mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB) * 255
+        new_mask = Image.fromarray(mask)
+        new_mask.save(f'{save_path}/{image.split(".")[0]}.jpg')

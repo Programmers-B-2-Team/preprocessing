@@ -1,4 +1,3 @@
-import os
 import typer
 from pathlib import Path
 from densepose import make_densepose
@@ -29,7 +28,7 @@ def unet_mask(
     save_path: Path = typer.Argument(..., help="Directory where result images saved in"),
 ):
     """
-    Create Binary masked image with U Net (image-only method)
+    Create Binary masked image of Garment with U Net (image-only method)
     """
     unet_masking(image_path, save_path)
 
